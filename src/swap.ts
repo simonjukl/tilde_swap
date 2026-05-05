@@ -5,43 +5,15 @@ export function swapFormulaLine(line: string): string {
     }
 
     const indent = line.match(/^(\s*)/)?.[1] ?? "";
-    const body = line.slice(indent.length);
+    const lhsRaw = line.slice(indent.length, tildeIndex).trimEnd();
+    const rhsRaw = line.slice(tildeIndex + 1).trimStart();
 
-    // If the line (ignoring indent) starts with a formula, swap the whole line.
-    // This covers: standalone formulas, and case_when / recode_values arguments
-    // where the formula is the only thing on the line.
-    const tildeInBody = body.indexOf("~");
-    const beforeTilde = body.slice(0, tildeInBody);
-    const isStandalone = !/[,(]/.test(beforeTilde);
+    // Trailing comma is a function argument separator, not part of either side
+    const trailingComma = rhsRaw.endsWith(",") || lhsRaw.endsWith(",") ? "," : "";
+    const lhs = lhsRaw.endsWith(",") ? lhsRaw.slice(0, -1).trimEnd() : lhsRaw;
+    const rhs = rhsRaw.endsWith(",") ? rhsRaw.slice(0, -1).trimEnd() : rhsRaw;
 
-    if (isStandalone) {
-        const lhsRaw = body.slice(0, tildeInBody).trimEnd();
-        const rhsRaw = body.slice(tildeInBody + 1).trimStart();
-
-        const trailingComma = rhsRaw.endsWith(",") ? "," : "";
-        const lhs = lhsRaw.endsWith(",") ? lhsRaw.slice(0, -1).trimEnd() : lhsRaw;
-        const rhs = trailingComma ? rhsRaw.slice(0, -1).trimEnd() : rhsRaw;
-
-        return `${indent}${rhs} ~ ${lhs}${trailingComma}`;
-    }
-
-    // Inline formula inside a function call: find the formula boundaries
-    // by scanning left to '(' or ',' and right to ')' or ','
-    let lhsStart = tildeIndex - 1;
-    while (lhsStart > 0 && !/[,(]/.test(line[lhsStart - 1])) {
-        lhsStart--;
-    }
-    let rhsEnd = tildeIndex + 1;
-    while (rhsEnd < line.length && !/[,)]/.test(line[rhsEnd])) {
-        rhsEnd++;
-    }
-
-    const prefix = line.slice(0, lhsStart);
-    const suffix = line.slice(rhsEnd);
-    const lhs = line.slice(lhsStart, tildeIndex).trim();
-    const rhs = line.slice(tildeIndex + 1, rhsEnd).trim();
-
-    return `${prefix}${rhs} ~ ${lhs}${suffix}`;
+    return `${indent}${rhs} ~ ${lhs}${trailingComma}`;
 }
 
 export function swapFormulaText(text: string): string {
