@@ -4,13 +4,33 @@ export function swapFormulaLine(line: string): string {
         return line;
     }
 
-    // Find the left boundary of the LHS: stop at '(' or ','
+    const indent = line.match(/^(\s*)/)?.[1] ?? "";
+    const body = line.slice(indent.length);
+
+    // If the line (ignoring indent) starts with a formula, swap the whole line.
+    // This covers: standalone formulas, and case_when / recode_values arguments
+    // where the formula is the only thing on the line.
+    const tildeInBody = body.indexOf("~");
+    const beforeTilde = body.slice(0, tildeInBody);
+    const isStandalone = !/[,(]/.test(beforeTilde);
+
+    if (isStandalone) {
+        const lhsRaw = body.slice(0, tildeInBody).trimEnd();
+        const rhsRaw = body.slice(tildeInBody + 1).trimStart();
+
+        const trailingComma = rhsRaw.endsWith(",") ? "," : "";
+        const lhs = lhsRaw.endsWith(",") ? lhsRaw.slice(0, -1).trimEnd() : lhsRaw;
+        const rhs = trailingComma ? rhsRaw.slice(0, -1).trimEnd() : rhsRaw;
+
+        return `${indent}${rhs} ~ ${lhs}${trailingComma}`;
+    }
+
+    // Inline formula inside a function call: find the formula boundaries
+    // by scanning left to '(' or ',' and right to ')' or ','
     let lhsStart = tildeIndex - 1;
     while (lhsStart > 0 && !/[,(]/.test(line[lhsStart - 1])) {
         lhsStart--;
     }
-
-    // Find the right boundary of the RHS: stop at ')' or ','
     let rhsEnd = tildeIndex + 1;
     while (rhsEnd < line.length && !/[,)]/.test(line[rhsEnd])) {
         rhsEnd++;
@@ -18,19 +38,10 @@ export function swapFormulaLine(line: string): string {
 
     const prefix = line.slice(0, lhsStart);
     const suffix = line.slice(rhsEnd);
+    const lhs = line.slice(lhsStart, tildeIndex).trim();
+    const rhs = line.slice(tildeIndex + 1, rhsEnd).trim();
 
-    // Separate leading whitespace from the LHS content so indentation is preserved
-    const lhsRawFull = line.slice(lhsStart, tildeIndex);
-    const indent = lhsRawFull.match(/^(\s*)/)?.[1] ?? "";
-    const lhs = lhsRawFull.trim();
-    const rhs = line.slice(tildeIndex + 1, rhsEnd).trimStart();
-
-    // Trailing comma belongs to the line, not either side
-    const trailingComma = lhs.endsWith(",") || rhs.endsWith(",") ? "," : "";
-    const cleanLhs = lhs.endsWith(",") ? lhs.slice(0, -1).trimEnd() : lhs;
-    const cleanRhs = rhs.endsWith(",") ? rhs.slice(0, -1).trimEnd() : rhs;
-
-    return `${prefix}${indent}${cleanRhs} ~ ${cleanLhs}${trailingComma}${suffix}`;
+    return `${prefix}${rhs} ~ ${lhs}${suffix}`;
 }
 
 export function swapFormulaText(text: string): string {
