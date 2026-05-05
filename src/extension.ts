@@ -8,22 +8,24 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
+        const multiline = vscode.workspace
+            .getConfiguration('tilde-swap')
+            .get<boolean>('multiline', true);
+
         const document = editor.document;
         const selections = editor.selections;
 
         editor.edit(editBuilder => {
             for (const selection of selections) {
                 if (selection.isEmpty) {
-                    // No selection: operate on the current line
                     const line = document.lineAt(selection.active.line);
-                    const swapped = swapFormulaText(line.text);
+                    const swapped = swapFormulaText(line.text, multiline);
                     if (swapped !== line.text) {
                         editBuilder.replace(line.range, swapped);
                     }
                 } else {
-                    // Selection: swap every line in the selected range
                     const text = document.getText(selection);
-                    const swapped = swapFormulaText(text);
+                    const swapped = swapFormulaText(text, multiline);
                     if (swapped !== text) {
                         editBuilder.replace(selection, swapped);
                     }

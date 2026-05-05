@@ -16,9 +16,15 @@ export function swapFormulaLine(line: string): string {
     return `${indent}${rhs} ~ ${lhs}${trailingComma}`;
 }
 
-export function swapFormulaText(text: string): string {
-    return text
-        .split("\n")
-        .map(swapFormulaLine)
-        .join("\n");
+export function swapFormulaText(text: string, multiline: boolean = true): string {
+    // Detect and preserve the line ending style
+    const crlf = text.includes("\r\n");
+    const lines = text.split(/\r?\n/);
+
+    if (!multiline && lines.length > 1) {
+        return text;
+    }
+
+    const result = lines.map(swapFormulaLine).join(crlf ? "\r\n" : "\n");
+    return result;
 }

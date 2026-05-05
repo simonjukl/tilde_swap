@@ -3,7 +3,7 @@
   "displayName": "tilde-swap",
   "publisher": "simonjukl",
   "description": "Swap sides of R formula expressions",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "vscode": ">=1.109.0"
   },
@@ -34,6 +34,16 @@
         "when": "editorTextFocus && editorLangId == r"
       }
     ],
+    "configuration": {
+      "title": "Tilde Swap",
+      "properties": {
+        "tilde-swap.multiline": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow swapping formulas across multiple selected lines."
+        }
+      }
+    },
     "menus": {
       "editor/context": [
         {
