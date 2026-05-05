@@ -19,7 +19,10 @@ export function swapFormulaLine(line: string): string {
     const prefix = line.slice(0, lhsStart);
     const suffix = line.slice(rhsEnd);
 
-    const lhs = line.slice(lhsStart, tildeIndex).trimEnd();
+    // Separate leading whitespace from the LHS content so indentation is preserved
+    const lhsRawFull = line.slice(lhsStart, tildeIndex);
+    const indent = lhsRawFull.match(/^(\s*)/)?.[1] ?? "";
+    const lhs = lhsRawFull.trim();
     const rhs = line.slice(tildeIndex + 1, rhsEnd).trimStart();
 
     // Trailing comma belongs to the line, not either side
@@ -27,7 +30,7 @@ export function swapFormulaLine(line: string): string {
     const cleanLhs = lhs.endsWith(",") ? lhs.slice(0, -1).trimEnd() : lhs;
     const cleanRhs = rhs.endsWith(",") ? rhs.slice(0, -1).trimEnd() : rhs;
 
-    return `${prefix}${cleanRhs} ~ ${cleanLhs}${trailingComma}${suffix}`;
+    return `${prefix}${indent}${cleanRhs} ~ ${cleanLhs}${trailingComma}${suffix}`;
 }
 
 export function swapFormulaText(text: string): string {
