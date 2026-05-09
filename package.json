@@ -3,7 +3,7 @@
   "displayName": "tilde-swap",
   "publisher": "simonjukl",
   "description": "Swap sides of R formula expressions",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "engines": {
     "vscode": ">=1.109.0"
   },
@@ -15,7 +15,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:r"
+    "onLanguage:r",
+    "onLanguage:quarto"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -23,7 +24,7 @@
       {
         "command": "tilde-swap.swapFormula",
         "title": "Swap Formula Sides (~)",
-        "category": "R"
+        "category": "Tilde Swap"
       }
     ],
     "keybindings": [
@@ -31,7 +32,7 @@
         "command": "tilde-swap.swapFormula",
         "key": "ctrl+alt+s",
         "mac": "cmd+alt+s",
-        "when": "editorTextFocus && editorLangId == r"
+        "when": "editorTextFocus && (editorLangId == r || editorLangId == quarto)"
       }
     ],
     "configuration": {
@@ -41,6 +42,12 @@
           "type": "boolean",
           "default": true,
           "description": "Allow swapping formulas across multiple selected lines."
+        },
+        "tilde-swap.languages": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["r", "quarto"],
+          "description": "Language IDs in which the swap command and keybinding are active."
         }
       }
     },
@@ -48,7 +55,7 @@
       "editor/context": [
         {
           "command": "tilde-swap.swapFormula",
-          "when": "editorLangId == r",
+          "when": "editorLangId == r || editorLangId == quarto",
           "group": "1_modification"
         }
       ]

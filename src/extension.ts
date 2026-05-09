@@ -8,9 +8,14 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        const multiline = vscode.workspace
-            .getConfiguration('tilde-swap')
-            .get<boolean>('multiline', true);
+        const config = vscode.workspace.getConfiguration('tilde-swap');
+        const multiline = config.get<boolean>('multiline', true);
+        const languages = config.get<string[]>('languages', ['r', 'quarto']);
+        const langId = editor.document.languageId;
+
+        if (!languages.includes(langId)) {
+            return;
+        }
 
         const document = editor.document;
         const selections = editor.selections;

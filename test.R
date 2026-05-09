@@ -16,16 +16,16 @@ x <- c("NC", "NYC", "CA", NA, "Unknown")
 
 recode_values(
   x,
-  "NC" ~ "North Carolina",
-  "NYC" ~ "New York",
-  "CA" ~ "California",
+  "North Carolina" ~ "NC",
+  "New York" ~ "NYC",
+  "California" ~ "CA",
   default = "<not recorded>"
 )
 
 # replace_values — single and grouped LHS
-replace_values(x, "NYC" ~ "NY")
-replace_values(x, NA ~ "Unknown (NA)")
-replace_values(x, "Unknown" ~ NA)
+replace_values(x, "NY" ~ "NYC")
+replace_values(x, "Unknown (NA)" ~ NA)
+replace_values(x, NA ~ "Unknown")
 
 replace_values(
   x,
@@ -46,9 +46,15 @@ recode_values(
 recode_values(
   schools,
   c("UNC", "Chapel Hill" ~ "UNC"),
-  c("Duke", "Duke University" ~ "Duke"),
-  c("NC State" ~ "NC State"),
-  c("ECU", "East Carolina" ~ "ECU"),
+  c("Duke", "Duke" ~ "Duke University"),
+  c("NC State" ~ "NC Statea"),
+  c("ECU", "ECU" ~ "East Carolina"),
   NA ~ NA,
   unmatched = "error"
 )
+
+
+df |>
+  ggplot(aes(x, y)) +
+  geom_point() +
+  facet_grid(l ~ t)
