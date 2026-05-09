@@ -1,9 +1,5 @@
-# Change Log
+# Changelog
 
-All notable changes to the "tilde-swap" extension will be documented in this file.
+## v0.1.0 - 2026-05-09
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+- Updated README and added CHANGELOG.
